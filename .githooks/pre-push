@@ -248,9 +248,12 @@ else
 fi
 
 # 3. Changed files count
-if [ "$FILE_COUNT" -gt 50 ]; then
-    record_fail "Changed files ($FILE_COUNT) exceeds maximum of 50"
+# Allow override via PREPUSH_MAX_FILES env var for large migrations
+MAX_FILES="${PREPUSH_MAX_FILES:-50}"
+if [ "$FILE_COUNT" -gt "$MAX_FILES" ]; then
+    record_fail "Changed files ($FILE_COUNT) exceeds maximum of $MAX_FILES"
     echo_info "  Consider splitting into smaller PRs."
+    echo_info "  Override: PREPUSH_MAX_FILES=N git push"
 elif [ "$FILE_COUNT" -gt 20 ]; then
     record_warn "Changed files ($FILE_COUNT) exceeds recommended limit of 20"
 else
@@ -356,7 +359,11 @@ if [ -n "$CHANGED_PY" ]; then
         while IFS= read -r file; do
             [ -z "$file" ] && continue
             [ -L "$file" ] && continue
-            [ -f "$file" ] && PY_FILES+=("$file")
+            [ -f "$file" ] || continue
+            # Skip standalone skill scripts (duplicate filenames across dirs
+            # cause mypy "Duplicate module named" errors)
+            [[ "$file" == .claude/skills/*/scripts/*.py ]] && continue
+            PY_FILES+=("$file")
         done <<< "$CHANGED_PY"
 
         if [ ${#PY_FILES[@]} -gt 0 ]; then
@@ -576,7 +583,14 @@ fi
     # 13. Pester tests (full suite)
     PESTER_RUNNER="$REPO_ROOT/build/scripts/Invoke-PesterTests.ps1"
 
-    if [ -n "$CHANGED_PS" ]; then
+    # Filter to only existing PS files (deleted files should not trigger Pester)
+    EXISTING_PS=""
+    while IFS= read -r file; do
+        [ -z "$file" ] && continue
+        [ -f "$file" ] && EXISTING_PS="${EXISTING_PS:+$EXISTING_PS$'\n'}$file"
+    done <<< "$CHANGED_PS"
+
+    if [ -n "$EXISTING_PS" ]; then
         if [ -L "$PESTER_RUNNER" ]; then
             record_fail "Pester test runner is a symlink (security violation)"
         elif [ -f "$PESTER_RUNNER" ]; then
@@ -599,7 +613,7 @@ fi
             record_skip "Pester tests (runner not found)"
         fi
     else
-        record_skip "Pester tests (no PowerShell files changed)"
+        record_skip "Pester tests (no existing PowerShell files changed)"
     fi
 
     # 14. Python tests (pytest)

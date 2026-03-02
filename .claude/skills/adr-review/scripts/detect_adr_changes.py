@@ -18,11 +18,10 @@ EXIT CODES (ADR-035):
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 ADR_PATTERNS = [
@@ -179,7 +178,7 @@ def detect_adr_changes(
         "DeletedDetails": deleted_details,
         "HasChanges": len(created) + len(modified) + len(deleted) > 0,
         "RecommendedAction": recommended_action,
-        "Timestamp": datetime.now(timezone.utc).isoformat(),
+        "Timestamp": datetime.now(UTC).isoformat(),
         "SinceCommit": since_commit,
     }
 
@@ -192,8 +191,14 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description="Detect ADR file changes")
     parser.add_argument("--base-path", default=".", help="Repository root path")
-    parser.add_argument("--since-commit", default="HEAD~1", help="Git commit SHA to compare against")
-    parser.add_argument("--include-untracked", action="store_true", help="Include untracked new ADR files")
+    parser.add_argument(
+        "--since-commit", default="HEAD~1",
+        help="Git commit SHA to compare against",
+    )
+    parser.add_argument(
+        "--include-untracked", action="store_true",
+        help="Include untracked new ADR files",
+    )
     args = parser.parse_args()
 
     try:
