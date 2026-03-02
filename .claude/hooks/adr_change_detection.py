@@ -70,7 +70,8 @@ def run_detection_script(detect_script: str, project_root: str) -> dict | None:
         return None
 
     try:
-        return json.loads(result.stdout)
+        result_data: dict = json.loads(result.stdout)
+        return result_data
     except (json.JSONDecodeError, ValueError):
         print(
             f"ADR detection script returned invalid JSON: "

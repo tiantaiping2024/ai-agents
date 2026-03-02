@@ -24,7 +24,6 @@ import re
 import sys
 from datetime import date
 
-
 # Keywords signaling autonomous/unattended execution
 AUTONOMY_PATTERNS: list[str] = [
     r"\bautonomous\b",
@@ -61,7 +60,7 @@ def extract_user_prompt(hook_input: dict) -> str | None:
     for key in ("prompt", "user_message_text", "message"):
         value = hook_input.get(key)
         if value and isinstance(value, str) and value.strip():
-            return value
+            return str(value)
     return None
 
 

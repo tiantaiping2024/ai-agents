@@ -22,13 +22,11 @@ Exit Codes:
 See: .agents/SESSION-PROTOCOL.md
 """
 
-import json
 import os
 import subprocess
 import sys
 from datetime import date
 from pathlib import Path
-
 
 PROTECTED_BRANCHES = ("main", "master")
 
@@ -205,7 +203,7 @@ def main() -> int:
 
         # Check if on protected branch
         if is_protected_branch(current_branch):
-            print(format_protected_branch_warning(current_branch))
+            print(format_protected_branch_warning(current_branch or ""))
             return 0
 
         # Inject git state into context

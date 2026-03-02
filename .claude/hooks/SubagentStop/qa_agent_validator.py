@@ -19,7 +19,6 @@ import os
 import re
 import sys
 
-
 # Required section header patterns (markdown h1-h3)
 QA_SECTION_PATTERNS = {
     "Test Strategy/Testing Approach/Test Plan (as section header)": (
@@ -46,7 +45,7 @@ def get_transcript_path(hook_input: dict) -> str | None:
         return None
     path = path.strip()
     if os.path.isfile(path):
-        return path
+        return str(path)
     return None
 
 

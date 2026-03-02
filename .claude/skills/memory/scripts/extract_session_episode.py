@@ -245,7 +245,8 @@ def parse_lessons(lines: list[str]) -> list[str]:
             if m:
                 lessons.append(m.group(1).strip())
 
-        if re.search(r"lesson|learned|takeaway|note for future", line, re.IGNORECASE) and not line.startswith("#"):
+        lesson_pattern = r"lesson|learned|takeaway|note for future"
+        if re.search(lesson_pattern, line, re.IGNORECASE) and not line.startswith("#"):
             lessons.append(line.strip())
 
     return list(dict.fromkeys(lessons))
@@ -324,7 +325,8 @@ def main() -> None:
     if args.output_path:
         output_path = Path(args.output_path)
     else:
-        output_path = Path(__file__).resolve().parent.parent.parent.parent.parent / ".agents" / "memory" / "episodes"
+        repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent
+        output_path = repo_root / ".agents" / "memory" / "episodes"
 
     print(f"Extracting episode from: {session_log}")
 
@@ -378,7 +380,7 @@ def main() -> None:
 
     episode_file.write_text(json.dumps(episode, indent=2), encoding="utf-8")
 
-    print(f"\nEpisode extracted:")
+    print("\nEpisode extracted:")
     print(f"  ID:        {episode['id']}")
     print(f"  Session:   {session_id}")
     print(f"  Outcome:   {outcome}")

@@ -8,6 +8,7 @@ import json
 import re
 import subprocess
 import sys
+from typing import Any
 
 from github_core.validation import test_github_name_valid
 
@@ -137,7 +138,7 @@ def gh_graphql(query: str, variables: dict | None = None) -> dict:
     Raises:
         subprocess.CalledProcessError on API failure.
     """
-    body = {"query": query}
+    body: dict[str, Any] = {"query": query}
     if variables:
         body["variables"] = variables
 

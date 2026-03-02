@@ -21,7 +21,6 @@ import os
 import subprocess
 import sys
 
-
 PROTECTED_BRANCHES = ("main", "master")
 
 
@@ -34,7 +33,7 @@ def write_block_response(reason: str) -> None:
 
 def get_working_directory(hook_input: dict) -> str:
     """Determine working directory from hook input, env, or cwd."""
-    cwd = hook_input.get("cwd", "")
+    cwd = str(hook_input.get("cwd", ""))
     if cwd and cwd.strip():
         return cwd.strip()
     env_dir = os.environ.get("CLAUDE_PROJECT_DIR", "")

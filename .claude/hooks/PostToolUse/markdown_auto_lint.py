@@ -26,7 +26,8 @@ def get_file_path_from_input(hook_input: dict) -> str | None:
     tool_input = hook_input.get("tool_input")
     if not tool_input or not isinstance(tool_input, dict):
         return None
-    return tool_input.get("file_path")
+    file_path = tool_input.get("file_path")
+    return str(file_path) if file_path else None
 
 
 def get_project_directory(hook_input: dict) -> str | None:
@@ -72,8 +73,8 @@ def run_lint(file_path: str, project_dir: str | None) -> None:
         )
     except FileNotFoundError:
         print(
-            f"\n**Markdown Auto-Lint WARNING**: npx not found."
-            f" Verify Node.js installation.\n"
+            "\n**Markdown Auto-Lint WARNING**: npx not found."
+            " Verify Node.js installation.\n"
         )
         return
     except subprocess.TimeoutExpired:
@@ -92,8 +93,8 @@ def run_lint(file_path: str, project_dir: str | None) -> None:
                 file=sys.stderr,
             )
             print(
-                f"\n**Markdown Auto-Lint WARNING**: Linter failed with no output."
-                f" Verify installation: `npm list markdownlint-cli2`\n"
+                "\n**Markdown Auto-Lint WARNING**: Linter failed with no output."
+                " Verify installation: `npm list markdownlint-cli2`\n"
             )
         else:
             error_summary = output_text[:200]
@@ -124,11 +125,11 @@ def main() -> int:
         hook_input = json.loads(input_text)
         file_path = get_file_path_from_input(hook_input)
 
-        if not should_lint_file(file_path):
+        if file_path is None or not should_lint_file(file_path):
             return 0
 
         project_dir = get_project_directory(hook_input)
-        run_lint(file_path, project_dir)
+        run_lint(file_path, project_dir or ".")
 
     except (json.JSONDecodeError, ValueError) as exc:
         print(

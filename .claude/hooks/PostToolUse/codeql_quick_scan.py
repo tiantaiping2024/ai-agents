@@ -39,7 +39,8 @@ def _get_project_directory(hook_input: dict) -> str:
     env_dir = os.environ.get("CLAUDE_PROJECT_DIR", "").strip()
     if env_dir:
         return env_dir
-    return hook_input.get("cwd", os.getcwd())
+    cwd = hook_input.get("cwd", os.getcwd())
+    return str(cwd) if cwd else os.getcwd()
 
 
 def _should_scan_file(file_path: str) -> bool:
@@ -98,7 +99,7 @@ def main() -> int:
         hook_input = json.loads(input_json)
         file_path = _get_file_path_from_input(hook_input)
 
-        if not _should_scan_file(file_path):
+        if file_path is None or not _should_scan_file(file_path):
             return 0
 
         project_dir = _get_project_directory(hook_input)

@@ -48,7 +48,8 @@ def get_project_directory(hook_input: dict) -> str:
     env_dir = os.environ.get("CLAUDE_PROJECT_DIR")
     if env_dir:
         return env_dir
-    return hook_input.get("cwd", os.getcwd())
+    cwd = hook_input.get("cwd", os.getcwd())
+    return str(cwd) if cwd else os.getcwd()
 
 
 def write_continue_response(reason: str) -> None:
