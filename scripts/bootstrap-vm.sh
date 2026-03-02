@@ -165,6 +165,15 @@ pwsh -NoProfile -Command 'Install-Module -Name powershell-yaml -Force -Scope Cur
 
 echo "=== Git Hooks ==="
 [[ -d ".githooks" ]] && git config core.hooksPath .githooks
+git config core.autocrlf input
+
+echo "=== Linting Tools ==="
+if ! command -v actionlint &>/dev/null; then
+    curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download.sh | bash
+fi
+if ! command -v yamllint &>/dev/null; then
+    pip install yamllint --quiet
+fi
 
 echo "=== Environment ==="
 grep -q 'SKIP_AUTOFIX' "$HOME/.bashrc" 2>/dev/null || echo 'export SKIP_AUTOFIX=0' >> "$HOME/.bashrc"
