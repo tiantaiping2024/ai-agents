@@ -169,7 +169,9 @@ git config core.autocrlf input
 
 echo "=== Linting Tools ==="
 if ! command -v actionlint &>/dev/null; then
-    curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download.sh -o /tmp/actionlint-installer.sh
+    bash /tmp/actionlint-installer.sh
+    rm -f /tmp/actionlint-installer.sh
 fi
 if ! command -v yamllint &>/dev/null; then
     pip install yamllint --quiet
